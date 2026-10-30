@@ -185,6 +185,11 @@ body.cat-view #catalogue{padding-top:clamp(40px,6vw,72px)!important;min-height:7
   -webkit-transform:translateX(-50%);transform:translateX(-50%);
   -webkit-filter:drop-shadow(0 0 18px rgba(255,181,71,.55));filter:drop-shadow(0 0 18px rgba(255,181,71,.55));
   -webkit-animation:floatc 5s ease-in-out infinite;animation:floatc 5s ease-in-out infinite}
+/* Safari sur iPhone peut ne pas afficher une image avec ombre + animation : on les retire sur téléphone */
+@media (max-width:820px){
+  .bottle img{-webkit-filter:none;filter:none;-webkit-animation:none;animation:none}
+  .bottle::before,.bottle::after{box-shadow:none}
+}
 @keyframes float{50%{transform:translateY(-12px) rotate(-3deg)}}
 @-webkit-keyframes floatc{0%,100%{-webkit-transform:translateX(-50%)}50%{-webkit-transform:translateX(-50%) translateY(-12px) rotate(-3deg)}}
 @keyframes floatc{0%,100%{transform:translateX(-50%)}50%{transform:translateX(-50%) translateY(-12px) rotate(-3deg)}}
