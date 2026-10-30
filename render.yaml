@@ -1,0 +1,19 @@
+# Configuration Render (Blueprint) pour le site Aperi'k.
+# Site statique : aucune compilation, Render sert directement les fichiers du dossier.
+services:
+  - type: web
+    name: aperik
+    runtime: static
+    buildCommand: echo "Site statique, rien a construire"
+    staticPublishPath: .
+    headers:
+      # Les photos changent rarement : le navigateur les garde 7 jours
+      - path: /photos/*
+        name: Cache-Control
+        value: public, max-age=604800
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
