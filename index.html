@@ -971,8 +971,8 @@ footer .loi{font-size:.78rem;text-align:center;border-top:1px dashed var(--line)
     {nom:"Sandeman Fine White", cat:"liqueur", info:"75 cl", prix:"140 DH", img:null},
     {nom:"Sierra Milenario Coffee", cat:"liqueur", info:"70 cl", prix:"510 DH", img:null}
   ];
-  // Les articles sans photo restent dans la liste mais ne s'affichent pas tant qu'on n'a pas leur photo
-  const VISIBLES = PRODUITS.filter(p => p.img);
+  // Tous les articles s'affichent : ceux qui ont une photo d'abord, ceux sans photo en bas de chaque rayon
+  const VISIBLES = PRODUITS.filter(p => p.img).concat(PRODUITS.filter(p => !p.img));
   const label = Object.fromEntries(CATS);
   const shapes = {
     wine:'<path d="M16 4h8v26c0 5 9 9 9 20v44a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V50c0-11 9-15 9-20z"/><path d="M7 60h26v20H7z"/>',
