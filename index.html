@@ -218,6 +218,32 @@ body.cat-view #catalogue{padding-top:clamp(40px,6vw,72px)!important;min-height:7
 .club input{font:inherit;color:var(--paper);background:var(--ink);border:1px solid var(--line);border-radius:999px;padding:.8em 1.2em;width:min(340px,100%)}
 .club input:focus{outline:none;border-color:var(--neon-2);box-shadow:0 0 14px color-mix(in srgb,var(--neon-2) 50%,transparent)}
 .club .msg{margin-top:14px;min-height:1.6em;color:var(--neon-2)}
+
+/* espace adhérent */
+.adh{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(24px,4vw,48px);text-align:left;align-items:start}
+@media (max-width:820px){.adh{grid-template-columns:1fr}}
+.adh-price{display:flex;align-items:baseline;gap:10px;margin-top:18px}
+.adh-price b{font-family:var(--f-display);font-weight:400;font-size:clamp(2.6rem,7vw,3.6rem);color:var(--amber);text-shadow:0 0 18px rgba(255,181,71,.45);line-height:1}
+.adh-price span{color:var(--mute);letter-spacing:.18em;text-transform:uppercase;font-size:.78rem}
+.adh-perks{list-style:none;padding:0;margin:20px 0 0;display:grid;gap:10px}
+.adh-perks li{padding-left:28px;position:relative}
+.adh-perks li::before{content:"✦";position:absolute;left:0;color:var(--neon);text-shadow:0 0 8px var(--neon)}
+.adh-perks b{color:var(--paper);font-weight:500}
+.adh-steps{margin:24px 0 0;padding:0;list-style:none;counter-reset:s;display:grid;gap:8px;color:var(--mute);font-size:.92rem}
+.adh-steps li{counter-increment:s;display:flex;gap:12px;align-items:center}
+.adh-steps li::before{content:counter(s);flex:none;width:26px;height:26px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font-size:.8rem;color:var(--neon-2)}
+.club .adh-form{display:grid;gap:14px;margin:0;background:rgba(6,5,10,.55);border:1px solid var(--line);border-radius:18px;padding:clamp(18px,3vw,26px)}
+.adh-form label{display:grid;gap:6px;font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+.adh-form label small{letter-spacing:0;text-transform:none}
+.club .adh-form input,.adh-form select{font:inherit;font-size:1rem;letter-spacing:0;text-transform:none;color:var(--paper);background:var(--ink);border:1px solid var(--line);border-radius:12px;padding:.75em .9em;width:100%}
+.adh-form select{appearance:none;-webkit-appearance:none}
+.adh-form input:focus,.adh-form select:focus{outline:none;border-color:var(--neon-2);box-shadow:0 0 12px rgba(51,230,255,.4)}
+.adh-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:420px){.adh-row{grid-template-columns:1fr}}
+.adh-form .adh-check{display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:.95rem;color:var(--paper)}
+.club .adh-form .adh-check input{width:20px;height:20px;padding:0;accent-color:var(--neon)}
+.adh-form .btn{justify-content:center;width:100%}
+.adh-form .msg{margin:0;text-align:center}
 .sr{position:absolute;left:-9999px}
 
 footer{border-top:1px solid var(--line);padding-block:40px 28px;color:var(--mute);font-size:.88rem}
@@ -246,16 +272,18 @@ footer .loi{font-size:.78rem;text-align:center;border-top:1px dashed var(--line)
     <nav class="nav" aria-label="Navigation principale">
       <a href="#rayons">Nos rayons</a>
       <a href="#catalogue">Catalogue</a>
+      <a href="#adherent">Adhérent</a>
       <a href="#contact">Contact</a>
     </nav>
-    <a class="btn cta" href="#contact">Nous contacter</a>
+    <a class="btn cta" href="#adherent">Devenir adhérent</a>
     <button class="burger" id="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
   </div>
   <nav class="menu" id="menu" aria-label="Menu" hidden>
     <a href="#rayons">Nos rayons</a>
     <a href="#catalogue">Catalogue</a>
+    <a href="#adherent">Espace adhérent · 399 DH/an</a>
     <a href="#contact">Contact</a>
-    <a href="https://wa.me/212618377621" target="_blank" rel="noopener">WhatsApp</a>
+    <a href="https://wa.me/212520356566" target="_blank" rel="noopener">WhatsApp</a>
   </nav>
 </header>
 
@@ -369,9 +397,9 @@ footer .loi{font-size:.78rem;text-align:center;border-top:1px dashed var(--line)
         </div>
         <div class="info rv">
           <h3>Téléphone &amp; WhatsApp</h3>
-          <p class="big">06 18 37 76 21</p>
+          <p class="big">05 20 35 65 66</p>
           <div class="links">
-            <a class="btn" href="https://wa.me/212618377621" target="_blank" rel="noopener">WhatsApp</a>
+            <a class="btn" href="https://wa.me/212520356566" target="_blank" rel="noopener">WhatsApp</a>
             <button class="btn ghost" id="copyTel" type="button">Copier le numéro</button>
           </div>
         </div>
@@ -385,18 +413,44 @@ footer .loi{font-size:.78rem;text-align:center;border-top:1px dashed var(--line)
     </div>
   </section>
 
-  <section style="padding-top:0">
+  <section id="adherent" style="padding-top:0">
     <div class="wrap">
-      <div class="club rv">
-        <div class="eyebrow">Le club Aperi'k</div>
-        <h2 class="h2" style="margin-top:12px">Les arrivages <em>avant tout le monde</em></h2>
-        <p class="lede" style="margin:14px auto 0">Une lettre par mois : nouvelles bouteilles, éditions limitées et offres réservées aux membres.</p>
-        <form id="club" novalidate>
-          <label for="email" class="sr">Adresse e-mail</label>
-          <input id="email" type="email" placeholder="votre@email.ma" autocomplete="email" required>
-          <button class="btn" type="submit">Rejoindre le club</button>
+      <div class="club adh rv">
+        <div class="adh-offer">
+          <div class="eyebrow">Espace adhérent</div>
+          <h2 class="h2" style="margin-top:12px">Devenez <em>adhérent</em> Aperi'k</h2>
+          <div class="adh-price"><b>399 DH</b><span>par an</span></div>
+          <ul class="adh-perks">
+            <li><b>5 % de remise</b> sur tous vos achats</li>
+            <li>Valable dans nos caves de Casablanca et de Marrakech</li>
+            <li>Abonnement annuel</li>
+          </ul>
+          <ol class="adh-steps">
+            <li>Remplissez le formulaire</li>
+            <li>Nous vous contactons pour finaliser votre adhésion</li>
+            <li>Votre remise s'applique en caisse</li>
+          </ol>
+        </div>
+        <form class="adh-form" id="adhForm" name="adhesion" method="POST" data-netlify="true" netlify-honeypot="site-web" novalidate>
+          <input type="hidden" name="form-name" value="adhesion">
+          <p class="sr"><label>Ne pas remplir <input name="site-web" tabindex="-1" autocomplete="off"></label></p>
+          <div class="adh-row">
+            <label>Prénom<input name="prenom" autocomplete="given-name" required></label>
+            <label>Nom<input name="nom" autocomplete="family-name" required></label>
+          </div>
+          <label>Téléphone<input name="telephone" type="tel" inputmode="tel" autocomplete="tel" placeholder="06 00 00 00 00" required></label>
+          <label>E-mail <small>(facultatif)</small><input name="email" type="email" autocomplete="email" placeholder="votre@email.ma"></label>
+          <label>Votre cave
+            <select name="cave" required>
+              <option value="">Choisir…</option>
+              <option>Casablanca</option>
+              <option>Marrakech</option>
+            </select>
+          </label>
+          <label class="adh-check"><input type="checkbox" name="majeur" value="oui" required> J'ai 18 ans ou plus</label>
+          <button class="btn" type="submit">Demander mon adhésion · 399 DH/an</button>
+          <p class="msg" id="adhMsg" role="status"></p>
         </form>
-        <p class="msg" id="msg" role="status"></p>
       </div>
     </div>
   </section>
@@ -407,7 +461,7 @@ footer .loi{font-size:.78rem;text-align:center;border-top:1px dashed var(--line)
     <div class="row">
       <img src="logo.png" alt="Aperi'k">
       <span>Vins · Bières · Spiritueux · Casablanca &amp; Marrakech</span>
-      <span>06 18 37 76 21 · @aperikmaroc</span>
+      <span>05 20 35 65 66 · @aperikmaroc</span>
     </div>
     <p class="loi">L'abus d'alcool est dangereux pour la santé, à consommer avec modération. Vente d'alcool interdite aux mineurs.</p>
     <p class="loi" style="border-top:0;padding-top:0;opacity:.7">Photos des bières : <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>, licence CC BY-SA.</p>
@@ -415,8 +469,8 @@ footer .loi{font-size:.78rem;text-align:center;border-top:1px dashed var(--line)
 </footer>
 
 <div class="callbar">
-  <a class="btn" href="tel:+212618377621">Appeler</a>
-  <a class="btn ghost" href="https://wa.me/212618377621" target="_blank" rel="noopener">WhatsApp</a>
+  <a class="btn" href="tel:+212520356566">Appeler</a>
+  <a class="btn ghost" href="https://wa.me/212520356566" target="_blank" rel="noopener">WhatsApp</a>
 </div>
 
 <script>
@@ -993,7 +1047,7 @@ footer .loi{font-size:.78rem;text-align:center;border-top:1px dashed var(--line)
   function renderProducts(){
     const list = cur==='tout' ? VISIBLES : VISIBLES.filter(p=>p.cat===cur);
     if(!list.length){
-      pEl.innerHTML = `<div class="empty"><b>Rayon ${esc(label[cur])} en cours de mise en ligne</b>Appelez-nous au 06 18 37 76 21 pour connaître les références disponibles.</div>`;
+      pEl.innerHTML = `<div class="empty"><b>Rayon ${esc(label[cur])} en cours de mise en ligne</b>Appelez-nous au 05 20 35 65 66 pour connaître les références disponibles.</div>`;
       return;
     }
     pEl.innerHTML = list.map((p,i) => `
@@ -1085,17 +1139,31 @@ footer .loi{font-size:.78rem;text-align:center;border-top:1px dashed var(--line)
   // copier le numéro
   document.getElementById('copyTel').addEventListener('click', e => {
     const b = e.currentTarget;
-    navigator.clipboard.writeText('0618377621').then(() => { b.textContent = 'Numéro copié'; }, () => {
+    navigator.clipboard.writeText('0520356566').then(() => { b.textContent = 'Numéro copié'; }, () => {
       const r = document.createRange(); r.selectNodeContents(document.querySelector('#contact .big')); getSelection().removeAllRanges(); getSelection().addRange(r);
       b.textContent = 'Sélectionné, faites Ctrl+C';
     });
   });
 
-  // newsletter (démo)
-  document.getElementById('club').addEventListener('submit', e => {
+  // demande d'adhésion : enregistrée par Netlify Forms (onglet Forms du site Netlify)
+  const adh = document.getElementById('adhForm'), adhMsg = document.getElementById('adhMsg');
+  adh.addEventListener('submit', async e => {
     e.preventDefault();
-    const v = document.getElementById('email').value.trim(), m = document.getElementById('msg');
-    m.textContent = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) ? 'Merci ! Vous êtes sur la liste du club.' : 'Entrez une adresse e-mail valide, par exemple nom@domaine.ma.';
+    const f = new FormData(adh);
+    const tel = (f.get('telephone') || '').replace(/\D/g, '');
+    if (!f.get('prenom').trim() || !f.get('nom').trim()) { adhMsg.textContent = 'Indiquez votre prénom et votre nom.'; return; }
+    if (tel.length < 9) { adhMsg.textContent = 'Indiquez un numéro de téléphone valide.'; return; }
+    if (!f.get('cave')) { adhMsg.textContent = 'Choisissez votre cave : Casablanca ou Marrakech.'; return; }
+    if (!f.get('majeur')) { adhMsg.textContent = "L'adhésion est réservée aux personnes de 18 ans ou plus."; return; }
+    const btn = adh.querySelector('button'); btn.disabled = true; adhMsg.textContent = 'Envoi en cours…';
+    try {
+      const r = await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(f).toString() });
+      if (!r.ok) throw new Error(r.status);
+      adh.reset();
+      adhMsg.textContent = 'Merci ! Votre demande est bien reçue. Nous vous appelons très vite pour finaliser votre adhésion.';
+    } catch (err) {
+      adhMsg.textContent = "L'envoi n'a pas abouti. Appelez-nous au 05 20 35 65 66 pour adhérer.";
+    } finally { btn.disabled = false; }
   });
 })();
 </script>
