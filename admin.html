@@ -97,6 +97,7 @@ main{padding-block:20px 60px}
     <a href="./" aria-label="Retour au site"><img src="logo.png" alt="Aperi'k"></a>
     <h1>Espace administrateur</h1>
     <button class="btn" id="refresh" type="button" hidden>Actualiser</button>
+    <button class="btn" id="pwdBtn" type="button" hidden>Mot de passe</button>
     <button class="btn" id="logout" type="button" hidden>Se déconnecter</button>
   </div>
 </header>
@@ -108,7 +109,7 @@ main{padding-block:20px 60px}
     <label class="lab">E-mail<input id="email" type="email" autocomplete="username" inputmode="email" spellcheck="false"></label>
     <label class="lab">Mot de passe<input id="mdp" type="password" autocomplete="current-password"></label>
     <button class="btn main" type="submit">Se connecter</button>
-    <button class="lien" type="button" id="toOubli">Mot de passe oublié / première connexion</button>
+    <button class="lien" type="button" id="toOubli">Mot de passe oublié</button>
     <p class="msg" id="loginMsg" role="alert"></p>
   </form>
 
@@ -124,6 +125,17 @@ main{padding-block:20px 60px}
     <button class="btn main" type="submit" id="oubliBtn">Recevoir le code</button>
     <button class="lien" type="button" id="toLogin">Retour à la connexion</button>
     <p class="msg" id="oubliMsg" role="alert"></p>
+  </form>
+
+  <form id="changerForm" novalidate hidden>
+    <h2>Ton mot de passe</h2>
+    <p id="changerTxt">Choisis un nouveau mot de passe. Il restera valable jusqu'à ce que tu le changes.</p>
+    <label class="lab">Mot de passe actuel<input id="ancien" type="password" autocomplete="current-password"></label>
+    <label class="lab">Nouveau mot de passe <small>(8 caractères minimum)</small><input id="nouv1" type="password" autocomplete="new-password"></label>
+    <label class="lab">Confirmer le nouveau mot de passe<input id="nouv2" type="password" autocomplete="new-password"></label>
+    <button class="btn main" type="submit" id="changerBtn">Enregistrer le mot de passe</button>
+    <button class="lien" type="button" id="changerPlusTard">Plus tard</button>
+    <p class="msg" id="changerMsg" role="alert"></p>
   </form>
 </section>
 
@@ -156,13 +168,18 @@ main{padding-block:20px 60px}
   const garderJeton = j => { jeton = j || ''; try { j ? localStorage.setItem(JETON_KEY, j) : localStorage.removeItem(JETON_KEY); } catch (e) {} };
   const ERREURS = {
     identifiants: 'E-mail ou mot de passe incorrect.',
-    pas_de_mdp: "Aucun mot de passe n'est encore défini : clique sur « Mot de passe oublié / première connexion ».",
+    pas_de_mdp: "Aucun mot de passe n'est encore défini : clique sur « Mot de passe oublié ».",
     bloque: 'Trop de tentatives. Réessaie dans 15 minutes.',
     code_faux: 'Code incorrect. Vérifie le code reçu par e-mail.',
     code_expire: 'Code expiré ou déjà utilisé. Demande un nouveau code.',
     mdp_court: 'Le mot de passe doit faire au moins 8 caractères.',
     session: 'Session expirée, reconnecte-toi.',
+    ancien_faux: 'Le mot de passe actuel est incorrect.',
+    mdp_identique: "Le nouveau mot de passe doit être différent de l'actuel.",
   };
+  // « Plus tard » : on ne redemande pas le changement avant la prochaine ouverture du navigateur
+  let reporte = false;
+  try { reporte = sessionStorage.getItem('aperik-mdp-reporte') === '1'; } catch (e) {}
   const texteErreur = e => ERREURS[e] || 'Erreur : ' + e;
 
   const api = body => fetch(SHEETS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ type: 'admin', jeton, ...body }) })
@@ -175,7 +192,9 @@ main{padding-block:20px 60px}
       const j = await api({ action: 'lire' });
       if (!j.ok) { if (j.erreur === 'session') garderJeton(''); montrerLogin(texteErreur(j.erreur)); return; }
       data = j;
-      $('login').hidden = true; $('app').hidden = false; $('refresh').hidden = false; $('logout').hidden = false;
+      $('refresh').hidden = $('logout').hidden = $('pwdBtn').hidden = false;
+      if (j.aChanger && !reporte) { montrerChanger(true); return; }
+      $('login').hidden = true; $('app').hidden = false;
       $('maj').textContent = 'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
       rendre();
     } catch (e) {
@@ -183,9 +202,19 @@ main{padding-block:20px 60px}
     } finally { $('refresh').disabled = false; }
   }
   function montrerLogin(m) {
-    $('app').hidden = true; $('login').hidden = false; $('refresh').hidden = true; $('logout').hidden = true;
-    $('loginForm').hidden = false; $('oubliForm').hidden = true; $('loginMsg').textContent = m || '';
+    $('app').hidden = true; $('login').hidden = false; $('refresh').hidden = $('logout').hidden = $('pwdBtn').hidden = true;
+    $('loginForm').hidden = false; $('oubliForm').hidden = $('changerForm').hidden = true; $('loginMsg').textContent = m || '';
   }
+  function montrerChanger(premiere) {
+    $('app').hidden = true; $('login').hidden = false;
+    $('loginForm').hidden = $('oubliForm').hidden = true; $('changerForm').hidden = false;
+    $('changerTxt').textContent = premiere
+      ? "Première connexion : remplace le mot de passe provisoire par le tien. Il restera valable jusqu'à ce que tu le changes."
+      : "Choisis un nouveau mot de passe. Il restera valable jusqu'à ce que tu le changes.";
+    $('changerPlusTard').textContent = premiere ? 'Plus tard' : 'Annuler';
+    $('changerMsg').textContent = ''; $('changerMsg').className = 'msg'; $('ancien').focus();
+  }
+  const fermerChanger = () => { $('ancien').value = $('nouv1').value = $('nouv2').value = ''; $('changerForm').hidden = true; $('login').hidden = true; $('app').hidden = false; rendre(); };
 
   function kpis() {
     const C = data.commandes, A = data.adherents, now = new Date();
@@ -277,6 +306,29 @@ main{padding-block:20px 60px}
       if (!j.ok) { $('loginMsg').textContent = texteErreur(j.erreur); return; }
       garderJeton(j.jeton); $('mdp').value = ''; charger();
     } catch (err) { $('loginMsg').textContent = 'Connexion impossible. Vérifie ta connexion internet.'; }
+    finally { b.disabled = false; }
+  });
+
+  // changement de mot de passe une fois connecté (proposé d'office à la première connexion)
+  $('pwdBtn').addEventListener('click', () => montrerChanger(false));
+  $('changerPlusTard').addEventListener('click', () => {
+    if (data && data.aChanger) { reporte = true; try { sessionStorage.setItem('aperik-mdp-reporte', '1'); } catch (e) {} }
+    fermerChanger();
+  });
+  $('changerForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const ancien = $('ancien').value, nouveau = $('nouv1').value, msg = $('changerMsg'), b = $('changerBtn');
+    msg.className = 'msg';
+    if (!ancien) { msg.textContent = 'Saisis le mot de passe actuel.'; return; }
+    if (nouveau.length < 8) { msg.textContent = texteErreur('mdp_court'); return; }
+    if (nouveau !== $('nouv2').value) { msg.textContent = 'Les deux mots de passe ne sont pas identiques.'; return; }
+    b.disabled = true;
+    try {
+      const j = await api({ action: 'changer', ancien, nouveau });
+      if (!j.ok) { if (j.erreur === 'session') { garderJeton(''); montrerLogin(texteErreur('session')); } else msg.textContent = texteErreur(j.erreur); return; }
+      data.aChanger = false; fermerChanger();
+      $('maj').textContent = 'Mot de passe enregistré. Utilise-le pour tes prochaines connexions.';
+    } catch (err) { msg.textContent = 'Connexion impossible. Vérifie ta connexion internet.'; }
     finally { b.disabled = false; }
   });
 
