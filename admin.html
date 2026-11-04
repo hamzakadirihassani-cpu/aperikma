@@ -39,8 +39,13 @@ header h1{font-family:var(--f-body);font-weight:400;font-size:.78rem;letter-spac
 .login form{width:min(380px,100%);display:grid;gap:14px;background:var(--ink-2);border:1px solid var(--line);border-radius:20px;padding:28px}
 .login h2{font-family:var(--f-display);font-weight:400;font-size:1.8rem;margin:0}
 .login p{color:var(--mute);margin:0;font-size:.92rem}
-.login input{background:var(--ink);border:1px solid var(--line);border-radius:12px;padding:.85em 1em;font-size:1.05rem;letter-spacing:.12em;text-transform:uppercase}
+.login .lab{display:grid;gap:6px;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+.login .lab small{letter-spacing:0;text-transform:none}
+.login input{background:var(--ink);border:1px solid var(--line);border-radius:12px;padding:.85em 1em;font-size:1rem;letter-spacing:0;text-transform:none;color:var(--paper)}
+#etape2{display:grid;gap:14px}
+.lien{background:none;border:0;padding:0;color:var(--neon-2);font-size:.88rem;cursor:pointer;text-decoration:underline;justify-self:center}
 .msg{min-height:1.4em;color:var(--ko);font-size:.9rem;margin:0}
+.msg.ok{color:var(--ok)}
 
 /* chiffres */
 main{padding-block:20px 60px}
@@ -99,10 +104,26 @@ main{padding-block:20px 60px}
 <section class="login" id="login">
   <form id="loginForm" novalidate>
     <h2>Admin Aperi'k</h2>
-    <p>Saisis le code d'accès affiché dans le journal du script Google (fonction <i>installer</i>).</p>
-    <input id="code" autocomplete="current-password" autocapitalize="characters" spellcheck="false" placeholder="Code d'accès" aria-label="Code d'accès">
-    <button class="btn main" type="submit">Entrer</button>
+    <p>Connecte-toi avec l'adresse e-mail et le mot de passe de l'espace administrateur.</p>
+    <label class="lab">E-mail<input id="email" type="email" autocomplete="username" inputmode="email" spellcheck="false"></label>
+    <label class="lab">Mot de passe<input id="mdp" type="password" autocomplete="current-password"></label>
+    <button class="btn main" type="submit">Se connecter</button>
+    <button class="lien" type="button" id="toOubli">Mot de passe oublié / première connexion</button>
     <p class="msg" id="loginMsg" role="alert"></p>
+  </form>
+
+  <form id="oubliForm" novalidate hidden>
+    <h2>Mot de passe</h2>
+    <p id="oubliTxt">Saisis l'adresse e-mail de l'espace administrateur : un code à 6 chiffres va t'y être envoyé.</p>
+    <label class="lab">E-mail<input id="email2" type="email" autocomplete="username" inputmode="email" spellcheck="false"></label>
+    <div id="etape2" hidden>
+      <label class="lab">Code reçu par e-mail<input id="codeMail" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></label>
+      <label class="lab">Nouveau mot de passe <small>(8 caractères minimum)</small><input id="mdp1" type="password" autocomplete="new-password"></label>
+      <label class="lab">Confirmer le mot de passe<input id="mdp2" type="password" autocomplete="new-password"></label>
+    </div>
+    <button class="btn main" type="submit" id="oubliBtn">Recevoir le code</button>
+    <button class="lien" type="button" id="toLogin">Retour à la connexion</button>
+    <p class="msg" id="oubliMsg" role="alert"></p>
   </form>
 </section>
 
@@ -128,10 +149,23 @@ main{padding-block:20px 60px}
   const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const dh = n => Number(n || 0).toLocaleString('fr-FR', { maximumFractionDigits: 2 }) + ' DH';
   const quand = iso => iso ? new Date(iso).toLocaleString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
-  let cle = '', data = null, onglet = 'commandes', filtreStatut = 'actifs';
-  try { cle = sessionStorage.getItem('aperik-admin') || ''; } catch (e) {}
+  // jeton de session renvoyé par le script après connexion (valable 30 jours, gardé sur cet appareil)
+  const JETON_KEY = 'aperik-admin-jeton';
+  let jeton = '', data = null, onglet = 'commandes', filtreStatut = 'actifs';
+  try { jeton = localStorage.getItem(JETON_KEY) || ''; } catch (e) {}
+  const garderJeton = j => { jeton = j || ''; try { j ? localStorage.setItem(JETON_KEY, j) : localStorage.removeItem(JETON_KEY); } catch (e) {} };
+  const ERREURS = {
+    identifiants: 'E-mail ou mot de passe incorrect.',
+    pas_de_mdp: "Aucun mot de passe n'est encore défini : clique sur « Mot de passe oublié / première connexion ».",
+    bloque: 'Trop de tentatives. Réessaie dans 15 minutes.',
+    code_faux: 'Code incorrect. Vérifie le code reçu par e-mail.',
+    code_expire: 'Code expiré ou déjà utilisé. Demande un nouveau code.',
+    mdp_court: 'Le mot de passe doit faire au moins 8 caractères.',
+    session: 'Session expirée, reconnecte-toi.',
+  };
+  const texteErreur = e => ERREURS[e] || 'Erreur : ' + e;
 
-  const api = body => fetch(SHEETS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ type: 'admin', cle, ...body }) })
+  const api = body => fetch(SHEETS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ type: 'admin', jeton, ...body }) })
     .then(r => r.json());
 
   async function charger() {
@@ -139,8 +173,8 @@ main{padding-block:20px 60px}
     $('refresh').disabled = true;
     try {
       const j = await api({ action: 'lire' });
-      if (!j.ok) { cle = ''; try { sessionStorage.removeItem('aperik-admin'); } catch (e) {} montrerLogin(j.erreur === 'code' ? 'Code incorrect.' : 'Erreur : ' + j.erreur); return; }
-      data = j; try { sessionStorage.setItem('aperik-admin', cle); } catch (e) {}
+      if (!j.ok) { if (j.erreur === 'session') garderJeton(''); montrerLogin(texteErreur(j.erreur)); return; }
+      data = j;
       $('login').hidden = true; $('app').hidden = false; $('refresh').hidden = false; $('logout').hidden = false;
       $('maj').textContent = 'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
       rendre();
@@ -148,7 +182,10 @@ main{padding-block:20px 60px}
       montrerLogin('Connexion impossible. Vérifie ta connexion internet et réessaie.');
     } finally { $('refresh').disabled = false; }
   }
-  function montrerLogin(m) { $('app').hidden = true; $('login').hidden = false; $('refresh').hidden = true; $('logout').hidden = true; $('loginMsg').textContent = m || ''; }
+  function montrerLogin(m) {
+    $('app').hidden = true; $('login').hidden = false; $('refresh').hidden = true; $('logout').hidden = true;
+    $('loginForm').hidden = false; $('oubliForm').hidden = true; $('loginMsg').textContent = m || '';
+  }
 
   function kpis() {
     const C = data.commandes, A = data.adherents, now = new Date();
@@ -226,10 +263,65 @@ main{padding-block:20px 60px}
   $('fStatut').addEventListener('change', () => { filtreStatut = $('fStatut').value; rendre(); });
   $('fTexte').addEventListener('input', rendre);
   $('refresh').addEventListener('click', charger);
-  $('logout').addEventListener('click', () => { cle = ''; data = null; try { sessionStorage.removeItem('aperik-admin'); } catch (e) {} montrerLogin(''); });
-  $('loginForm').addEventListener('submit', e => { e.preventDefault(); cle = $('code').value.trim().toUpperCase(); if (cle) charger(); });
+  $('logout').addEventListener('click', () => { api({ action: 'deconnexion' }).catch(() => {}); garderJeton(''); data = null; montrerLogin(''); });
 
-  if (cle) charger(); else montrerLogin(SHEETS_URL ? '' : "Le tableau de bord n'est pas encore relié au Google Sheets (voir le guide).");
+  // connexion
+  $('loginForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const email = $('email').value.trim(), motdepasse = $('mdp').value, b = e.submitter || $('loginForm').querySelector('.main');
+    if (!email || !motdepasse) { $('loginMsg').textContent = "Saisis l'e-mail et le mot de passe."; return; }
+    if (!SHEETS_URL) { $('loginMsg').textContent = "Le tableau de bord n'est pas encore relié au Google Sheets (voir le guide)."; return; }
+    b.disabled = true; $('loginMsg').textContent = '';
+    try {
+      const j = await api({ action: 'connexion', email, motdepasse });
+      if (!j.ok) { $('loginMsg').textContent = texteErreur(j.erreur); return; }
+      garderJeton(j.jeton); $('mdp').value = ''; charger();
+    } catch (err) { $('loginMsg').textContent = 'Connexion impossible. Vérifie ta connexion internet.'; }
+    finally { b.disabled = false; }
+  });
+
+  // mot de passe oublié / première connexion : 1) recevoir le code  2) code + nouveau mot de passe
+  let codeEnvoye = false;
+  const vueOubli = () => {
+    codeEnvoye = false; $('etape2').hidden = true; $('oubliBtn').textContent = 'Recevoir le code';
+    $('oubliTxt').textContent = "Saisis l'adresse e-mail de l'espace administrateur : un code à 6 chiffres va t'y être envoyé.";
+    $('oubliMsg').textContent = ''; $('oubliMsg').className = 'msg'; $('email2').value = $('email').value;
+    $('loginForm').hidden = true; $('oubliForm').hidden = false; $('email2').focus();
+  };
+  $('toOubli').addEventListener('click', vueOubli);
+  $('toLogin').addEventListener('click', () => montrerLogin(''));
+  $('oubliForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const email = $('email2').value.trim(), msg = $('oubliMsg'), b = $('oubliBtn');
+    msg.className = 'msg';
+    if (!email) { msg.textContent = "Saisis l'adresse e-mail."; return; }
+    if (!SHEETS_URL) { msg.textContent = "Le tableau de bord n'est pas encore relié au Google Sheets (voir le guide)."; return; }
+    if (codeEnvoye) {
+      const code = $('codeMail').value.trim(), nouveau = $('mdp1').value;
+      if (!/^\d{6}$/.test(code)) { msg.textContent = 'Le code reçu par e-mail fait 6 chiffres.'; return; }
+      if (nouveau.length < 8) { msg.textContent = texteErreur('mdp_court'); return; }
+      if (nouveau !== $('mdp2').value) { msg.textContent = 'Les deux mots de passe ne sont pas identiques.'; return; }
+      b.disabled = true;
+      try {
+        const j = await api({ action: 'reinit', email, code, nouveau });
+        if (!j.ok) { msg.textContent = texteErreur(j.erreur); return; }
+        garderJeton(j.jeton); $('codeMail').value = $('mdp1').value = $('mdp2').value = ''; charger();
+      } catch (err) { msg.textContent = 'Connexion impossible. Vérifie ta connexion internet.'; }
+      finally { b.disabled = false; }
+      return;
+    }
+    b.disabled = true;
+    try {
+      const j = await api({ action: 'oubli', email });
+      if (!j.ok) { msg.textContent = texteErreur(j.erreur); return; }
+      codeEnvoye = true; $('etape2').hidden = false; b.textContent = 'Enregistrer le mot de passe';
+      $('oubliTxt').textContent = "Si cette adresse est celle de l'espace administrateur, un code vient d'y être envoyé (pense à regarder les spams).";
+      msg.className = 'msg ok'; msg.textContent = 'Code envoyé. Il est valable 30 minutes.'; $('codeMail').focus();
+    } catch (err) { msg.textContent = 'Connexion impossible. Vérifie ta connexion internet.'; }
+    finally { b.disabled = false; }
+  });
+
+  if (jeton) charger(); else montrerLogin(SHEETS_URL ? '' : "Le tableau de bord n'est pas encore relié au Google Sheets (voir le guide).");
 })();
 </script>
 </body>
