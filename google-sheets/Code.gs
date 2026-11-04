@@ -30,6 +30,50 @@ function installer() {
   construireTableauDeBord_(ss);
   const vide = ss.getSheetByName('Feuille 1') || ss.getSheetByName('Sheet1');
   if (vide && vide.getLastRow() === 0 && ss.getSheets().length > 1) ss.deleteSheet(vide);
+  const code = codeAdmin_();
+  Logger.log("Code d'accès à aperik.ma/admin : " + code);
+}
+
+/** Code d'accès à la page aperik.ma/admin : créé une fois, gardé dans les propriétés du script. */
+function codeAdmin_() {
+  const props = PropertiesService.getScriptProperties();
+  let code = props.getProperty('CODE_ADMIN');
+  if (!code) {
+    code = Utilities.getUuid().replace(/-/g, '').slice(0, 10).toUpperCase();
+    props.setProperty('CODE_ADMIN', code);
+  }
+  return code;
+}
+
+/** Pour changer le code : ▶ Exécuter cette fonction, le nouveau code s'affiche dans le journal. */
+function nouveauCodeAdmin() {
+  PropertiesService.getScriptProperties().deleteProperty('CODE_ADMIN');
+  Logger.log("Nouveau code d'accès à aperik.ma/admin : " + codeAdmin_());
+}
+
+const lireOnglet_ = (ss, nom) => {
+  const v = ss.getSheetByName(nom).getDataRange().getValues();
+  const tete = v.shift();
+  return v.filter(l => l[0]).map(l => Object.fromEntries(tete.map((t, i) => [t, l[i] instanceof Date ? l[i].toISOString() : l[i]])));
+};
+
+function admin_(d) {
+  if (!d.cle || d.cle !== codeAdmin_()) return { ok: false, erreur: 'code' };
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (!ss.getSheetByName('Commandes')) installer();
+  if (d.action === 'statut') {
+    const nom = String(d.numero).charAt(0) === 'C' ? 'Commandes' : 'Adherents';
+    const statuts = nom === 'Commandes' ? STATUTS_COMMANDE : STATUTS_ADHESION;
+    if (!statuts.includes(d.statut)) return { ok: false, erreur: 'statut' };
+    const sh = ss.getSheetByName(nom), nums = sh.getRange('A:A').getValues().map(r => String(r[0]));
+    const ligne = nums.indexOf(String(d.numero)) + 1;
+    if (ligne < 2) return { ok: false, erreur: 'introuvable' };
+    sh.getRange(ligne, 3).setValue(d.statut);
+    if (d.note !== undefined) sh.getRange(ligne, COLONNES[nom].indexOf('Note interne') + 1).setValue(String(d.note));
+    return { ok: true };
+  }
+  return { ok: true, commandes: lireOnglet_(ss, 'Commandes'), adherents: lireOnglet_(ss, 'Adherents'),
+           statutsCommande: STATUTS_COMMANDE, statutsAdhesion: STATUTS_ADHESION };
 }
 
 function construireTableauDeBord_(ss) {
@@ -78,6 +122,7 @@ function doPost(e) {
     if (!ss.getSheetByName('Commandes')) installer();
     if (d.type === 'commande') return repondre_({ ok: true, numero: enregistrerCommande_(ss, d) });
     if (d.type === 'adhesion') return repondre_({ ok: true, numero: enregistrerAdhesion_(ss, d) });
+    if (d.type === 'admin') return repondre_(admin_(d));
     return repondre_({ ok: false, erreur: 'type inconnu' });
   } catch (err) {
     return repondre_({ ok: false, erreur: String(err) });

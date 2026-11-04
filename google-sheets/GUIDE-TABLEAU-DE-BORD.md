@@ -21,12 +21,24 @@ Le classeur contient 3 onglets :
      **Paramètres avancés** → **Accéder à Aperi'k (non sécurisé)** → **Autoriser**.
      (C'est ton propre script : Google affiche ce message pour tout script personnel.)
    - Reviens sur le classeur : les 3 onglets sont créés.
+   - En bas, le **Journal d'exécution** affiche : « Code d'accès à aperik.ma/admin : XXXXXXXXXX ».
+     **Note ce code** : c'est ton mot de passe pour l'espace administrateur.
 5. Clique **Déployer → Nouveau déploiement**.
    - Roue dentée → **Application Web**.
    - **Exécuter en tant que** : Moi.
    - **Qui a accès** : **Tout le monde**.
    - **Déployer**, puis copie l'**URL de l'application Web** (elle se termine par `/exec`).
-6. Envoie cette URL à Claude : il la met dans le site (`SHEETS_URL` dans `index.html`) et republie.
+6. Envoie cette URL à Claude : il la met dans le site (`SHEETS_URL` dans `index.html` et `admin.html`) et republie.
+
+## Espace administrateur : aperik.ma/admin
+
+Ouvre **https://aperik.ma/admin** (ordinateur ou téléphone) et saisis ton code d'accès.
+- En haut : à préparer, prêtes à retirer, commandes du jour et du mois, chiffre d'affaires retiré,
+  adhérents à rappeler, cartes payées.
+- Onglets **Commandes** et **Cartes adhérent**, filtres par cave et par statut, recherche par nom ou téléphone.
+- Sur chaque fiche : appeler ou écrire sur WhatsApp au client, changer le statut, ajouter une note interne,
+  puis **Enregistrer**. Le Google Sheets est mis à jour en même temps.
+- Code perdu ou à changer : dans Apps Script, exécute **nouveauCodeAdmin** et lis le nouveau code dans le journal.
 
 Tant que l'URL n'est pas mise, les commandes partent sur WhatsApp (07 68 70 85 07)
 et les adhésions par e-mail (FormSubmit).

@@ -7,7 +7,15 @@ services:
     # Rien à compiler : on retire seulement les fichiers de travail (Excel, notes) pour ne pas les publier
     buildCommand: rm -rf *.csv *.md render.yaml .gitignore google-sheets
     staticPublishPath: .
+    routes:
+      # aperik.ma/admin ouvre l'espace administrateur
+      - type: rewrite
+        source: /admin
+        destination: /admin.html
     headers:
+      - path: /admin.html
+        name: X-Robots-Tag
+        value: noindex, nofollow
       # Les photos changent rarement : le navigateur les garde 7 jours
       - path: /photos/*
         name: Cache-Control
