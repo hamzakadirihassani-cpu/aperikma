@@ -234,7 +234,11 @@ body.cat-view #catalogue{padding-top:clamp(40px,6vw,72px)!important;min-height:7
 .cart-btn span{letter-spacing:0;font-weight:500}
 .cart-btn.pulse{animation:pulse .45s ease}
 @keyframes pulse{50%{transform:scale(1.08)}}
-@media (max-width:820px){.cart-btn{bottom:calc(86px + env(safe-area-inset-bottom,0px))}}
+/* sur téléphone, le panier est dans la barre du bas */
+@media (max-width:820px){.cart-btn{display:none!important}}
+#barPanier{gap:8px;cursor:pointer;font:inherit;font-size:.74rem;letter-spacing:.16em;text-transform:uppercase}
+#barPanier b{background:var(--ink);color:var(--paper);border-radius:999px;min-width:22px;padding:2px 6px;font-weight:500;letter-spacing:0}
+#barPanier.pulse{animation:pulse .45s ease}
 .cart{position:fixed;inset:0;z-index:70;background:rgba(6,5,10,.72);backdrop-filter:blur(4px)}
 .cart-panel{position:absolute;top:0;right:0;bottom:0;width:min(440px,100%);overflow-y:auto;background:var(--ink-2);border-left:1px solid var(--line);
   padding:calc(18px + env(safe-area-inset-top,0px)) 20px calc(24px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px}
@@ -555,7 +559,7 @@ footer .loi{font-size:.78rem;text-align:center;border-top:1px dashed var(--line)
 </div>
 
 <div class="callbar">
-  <a class="btn" href="tel:+212520356566">Appeler</a>
+  <button class="btn" type="button" id="barPanier">Panier<b hidden>0</b></button>
   <a class="btn ghost" href="https://wa.me/212768708507" target="_blank" rel="noopener">WhatsApp</a>
 </div>
 
@@ -1257,6 +1261,7 @@ footer .loi{font-size:.78rem;text-align:center;border-top:1px dashed var(--line)
 
   const cartBtn = document.getElementById('cartBtn'), cart = document.getElementById('cart'), cartList = document.getElementById('cartList');
   const cartForm = document.getElementById('cartForm'), cartMsg = document.getElementById('cartMsg');
+  const barPanier = document.getElementById('barPanier'), barPanierNb = barPanier.querySelector('b');
 
   function majBoutons() {
     document.querySelectorAll('#products .add').forEach(b => {
@@ -1270,6 +1275,7 @@ footer .loi{font-size:.78rem;text-align:center;border-top:1px dashed var(--line)
     cartBtn.hidden = n === 0;
     cartBtn.querySelector('b').textContent = n;
     cartBtn.querySelector('span').textContent = dh(t);
+    barPanierNb.hidden = n === 0; barPanierNb.textContent = n;
     document.getElementById('cartTotal').textContent = dh(t);
     cartList.innerHTML = L.length ? L.map(l => `
       <li>
@@ -1295,8 +1301,10 @@ footer .loi{font-size:.78rem;text-align:center;border-top:1px dashed var(--line)
   pEl.addEventListener('click', e => {
     const b = e.target.closest('.add'); if (!b) return;
     ajouter(b.dataset.key, 1);
-    cartBtn.classList.remove('pulse'); void cartBtn.offsetWidth; cartBtn.classList.add('pulse');
+    for (const x of [cartBtn, barPanier]) { x.classList.remove('pulse'); void x.offsetWidth; x.classList.add('pulse'); }
   });
+  // barre du téléphone : ouvre le panier, ou le catalogue s'il est vide
+  barPanier.addEventListener('click', () => { if (nbPanier()) ouvrir(); else location.hash = '#catalogue'; });
   cartList.addEventListener('click', e => { const b = e.target.closest('button[data-k]'); if (b) ajouter(b.dataset.k, +b.dataset.d); });
   cartBtn.addEventListener('click', ouvrir);
   cart.addEventListener('click', e => { if (e.target === cart || e.target.closest('[data-close]')) fermer(); });
