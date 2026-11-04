@@ -223,6 +223,46 @@ body.cat-view #catalogue{padding-top:clamp(40px,6vw,72px)!important;min-height:7
 .club input:focus{outline:none;border-color:var(--neon-2);box-shadow:0 0 14px color-mix(in srgb,var(--neon-2) 50%,transparent)}
 .club .msg{margin-top:14px;min-height:1.6em;color:var(--neon-2)}
 
+/* panier */
+.prod .add{margin-top:10px;font-family:var(--f-body);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--paper);background:transparent;border:1px solid var(--neon);border-radius:999px;padding:.7em .8em;cursor:pointer;transition:background .2s,color .2s}
+.prod .add:hover{background:var(--neon);color:var(--ink)}
+.prod .add.in{background:var(--neon);color:var(--ink);border-color:var(--neon)}
+.cart-btn{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:58;display:flex;align-items:center;gap:8px;
+  font-family:var(--f-body);font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);background:var(--neon);border:0;border-radius:999px;padding:.85em 1.2em;cursor:pointer;box-shadow:0 0 24px rgba(255,47,180,.55)}
+.cart-btn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.cart-btn b{background:var(--ink);color:var(--paper);border-radius:999px;min-width:22px;padding:2px 6px;font-weight:500;letter-spacing:0}
+.cart-btn span{letter-spacing:0;font-weight:500}
+.cart-btn.pulse{animation:pulse .45s ease}
+@keyframes pulse{50%{transform:scale(1.08)}}
+@media (max-width:820px){.cart-btn{bottom:calc(86px + env(safe-area-inset-bottom,0px))}}
+.cart{position:fixed;inset:0;z-index:70;background:rgba(6,5,10,.72);backdrop-filter:blur(4px)}
+.cart-panel{position:absolute;top:0;right:0;bottom:0;width:min(440px,100%);overflow-y:auto;background:var(--ink-2);border-left:1px solid var(--line);
+  padding:calc(18px + env(safe-area-inset-top,0px)) 20px calc(24px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px}
+.cart-head{display:flex;align-items:center;justify-content:space-between}
+.cart-head h2{font-family:var(--f-display);font-size:1.7rem}
+.cart-x{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--paper);font-size:1rem;cursor:pointer}
+.cart-intro,.cart-note{color:var(--mute);font-size:.9rem}
+.cart-intro b{color:var(--paper);font-weight:500}
+.cart-list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.cart-list li{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.cart-list li.vide{display:block;text-align:center;color:var(--mute);padding:20px}
+.cart-list img,.cart-list i{width:44px;height:56px;object-fit:contain;display:block}
+.cart-list i{border-radius:8px;background:var(--ink)}
+.cart-list b{display:block;font-weight:500;font-size:.92rem;line-height:1.3}
+.cart-list small{color:var(--mute);font-size:.78rem}
+.qty{display:flex;align-items:center;gap:6px}
+.qty button{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--paper);font-size:1rem;cursor:pointer}
+.qty span{min-width:18px;text-align:center;font-variant-numeric:tabular-nums}
+.cart-total{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--line);padding-top:12px}
+.cart-total span{color:var(--mute);text-transform:uppercase;letter-spacing:.18em;font-size:.76rem}
+.cart-total b{font-family:var(--f-display);font-weight:400;font-size:1.8rem;color:var(--amber)}
+.cart-form{display:grid;gap:14px;margin:0;background:transparent;border:0;padding:0}
+.cart-form input,.cart-form select{font:inherit;font-size:1rem;letter-spacing:0;text-transform:none;color:var(--paper);background:var(--ink);border:1px solid var(--line);border-radius:12px;padding:.75em .9em;width:100%}
+.cart-form .adh-check input{width:20px;height:20px;padding:0;accent-color:var(--neon)}
+.cart-msg{color:var(--neon-2);margin:0}
+.cart-msg b{color:var(--paper);font-weight:500}
+body.cart-open{overflow:hidden}
+
 /* espace adhérent */
 .adh{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(24px,4vw,48px);text-align:left;align-items:start}
 @media (max-width:820px){.adh{grid-template-columns:1fr}}
@@ -471,6 +511,48 @@ footer .loi{font-size:.78rem;text-align:center;border-top:1px dashed var(--line)
     <p class="loi" style="border-top:0;padding-top:0;opacity:.7">Photos des bières : <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>, licence CC BY-SA.</p>
   </div>
 </footer>
+
+<button class="cart-btn" id="cartBtn" type="button" hidden aria-label="Voir mon panier">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 8H6.2"/><circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/></svg>
+  Panier <b>0</b><span>0 DH</span>
+</button>
+
+<div class="cart" id="cart" hidden role="dialog" aria-modal="true" aria-labelledby="cartTitle">
+  <div class="cart-panel">
+    <div class="cart-head">
+      <h2 id="cartTitle">Mon panier</h2>
+      <button type="button" class="cart-x" data-close aria-label="Fermer le panier">✕</button>
+    </div>
+    <p class="cart-intro">Commandez en ligne, <b>retirez en magasin</b> et payez sur place.</p>
+    <ul class="cart-list" id="cartList"></ul>
+    <div class="cart-total"><span>Total</span><b id="cartTotal">0 DH</b></div>
+    <p class="cart-note">Adhérent ? Votre remise de 5 % est appliquée en caisse.</p>
+    <form class="adh-form cart-form" id="cartForm" novalidate>
+      <p class="sr"><label>Ne pas remplir <input name="site_web" tabindex="-1" autocomplete="off"></label></p>
+      <div class="adh-row">
+        <label>Prénom<input name="prenom" autocomplete="given-name" required></label>
+        <label>Nom<input name="nom" autocomplete="family-name" required></label>
+      </div>
+      <label>Téléphone<input name="telephone" type="tel" inputmode="tel" autocomplete="tel" placeholder="06 00 00 00 00" required></label>
+      <label>E-mail <small>(facultatif)</small><input name="email" type="email" autocomplete="email" placeholder="votre@email.ma"></label>
+      <label>Retrait à la cave de
+        <select name="cave" required>
+          <option value="">Choisir…</option>
+          <option>Casablanca</option>
+          <option>Marrakech</option>
+        </select>
+      </label>
+      <div class="adh-row">
+        <label>Jour de retrait<input name="date" type="date" required></label>
+        <label>Heure souhaitée <small>(facultatif)</small><input name="heure" type="time"></label>
+      </div>
+      <label>Une précision ? <small>(facultatif)</small><input name="note" maxlength="300" placeholder="Bouteilles fraîches, emballage cadeau…"></label>
+      <label class="adh-check"><input type="checkbox" name="majeur" value="oui" required> J'ai 18 ans ou plus</label>
+      <button class="btn" type="submit">Valider ma commande</button>
+    </form>
+    <p class="msg cart-msg" id="cartMsg" role="status"></p>
+  </div>
+</div>
 
 <div class="callbar">
   <a class="btn" href="tel:+212520356566">Appeler</a>
@@ -1039,6 +1121,15 @@ footer .loi{font-size:.78rem;text-align:center;border-top:1px dashed var(--line)
   };
   const shapeOf = c => c==='vin'||c==='bulles' ? 'wine' : c==='biere' ? 'beer' : 'spirit';
   const esc = s => String(s).replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+
+  // Adresse de l'application Google Sheets (commandes + adhésions). Vide = commandes par WhatsApp.
+  const SHEETS_URL = '';
+  const WHATSAPP = '212768708507';
+  const prixNum = s => { const m = String(s || '').match(/[\d\s.,]+/); return m ? parseFloat(m[0].replace(/\s/g, '').replace(',', '.')) || 0 : 0; };
+  const cle = p => p.nom + '|' + p.info;
+  const PANIER_KEY = 'aperik-panier';
+  let panier = {};
+  try { panier = JSON.parse(localStorage.getItem(PANIER_KEY) || '{}') || {}; } catch (e) { panier = {}; }
   const fEl = document.getElementById('filters'), pEl = document.getElementById('products');
   let cur = 'tout';
 
@@ -1063,8 +1154,10 @@ footer .loi{font-size:.78rem;text-align:center;border-top:1px dashed var(--line)
           <h3>${esc(p.nom)}</h3>
           <span class="meta">${esc(p.info)}</span>
           <span class="price">${p.prix ? esc(p.prix) : 'Prix à venir'}</span>
+          ${prixNum(p.prix) ? `<button type="button" class="add" data-key="${esc(cle(p))}">Ajouter au panier</button>` : ''}
         </div>
       </article>`).join('');
+    majBoutons();
   }
   function select(k){ cur = k; renderFilters(); renderProducts(); }
   fEl.addEventListener('click', e => { const b = e.target.closest('button'); if(b) select(b.dataset.k); });
@@ -1149,9 +1242,111 @@ footer .loi{font-size:.78rem;text-align:center;border-top:1px dashed var(--line)
     });
   });
 
-  // demande d'adhésion : envoyée par e-mail via FormSubmit (gratuit, sans compte).
-  // Après la première inscription, FormSubmit envoie un e-mail d'activation, puis un code
-  // à mettre à la place de l'adresse ci-dessous pour ne plus l'afficher dans la page.
+  // ===== Panier et retrait en magasin (SHEETS_URL : voir google-sheets/GUIDE-TABLEAU-DE-BORD.md) =====
+  function envoyerSheets(data) {
+    return fetch(SHEETS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(data) })
+      .then(r => r.json()).then(j => { if (!j.ok) throw new Error(j.erreur || 'refus'); return j; });
+  }
+
+  const sauver =() => { try { localStorage.setItem(PANIER_KEY, JSON.stringify(panier)); } catch (e) {} };
+  const parCle = Object.fromEntries(PRODUITS.filter(p => prixNum(p.prix)).map(p => [cle(p), p]));
+  for (const k of Object.keys(panier)) if (!parCle[k]) delete panier[k];   // produits retirés du catalogue
+  const lignes = () => Object.entries(panier).map(([k, q]) => ({ p: parCle[k], k, q })).filter(l => l.p && l.q > 0);
+  const totalPanier = () => lignes().reduce((s, l) => s + l.q * prixNum(l.p.prix), 0);
+  const nbPanier = () => lignes().reduce((s, l) => s + l.q, 0);
+  const dh = n => (Math.round(n * 100) / 100).toLocaleString('fr-FR', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }) + ' DH';
+
+  const cartBtn = document.getElementById('cartBtn'), cart = document.getElementById('cart'), cartList = document.getElementById('cartList');
+  const cartForm = document.getElementById('cartForm'), cartMsg = document.getElementById('cartMsg');
+
+  function majBoutons() {
+    document.querySelectorAll('#products .add').forEach(b => {
+      const q = panier[b.dataset.key] || 0;
+      b.textContent = q ? `Dans le panier · ${q}` : 'Ajouter au panier';
+      b.classList.toggle('in', q > 0);
+    });
+  }
+  function majPanier() {
+    const n = nbPanier(), t = totalPanier(), L = lignes();
+    cartBtn.hidden = n === 0;
+    cartBtn.querySelector('b').textContent = n;
+    cartBtn.querySelector('span').textContent = dh(t);
+    document.getElementById('cartTotal').textContent = dh(t);
+    cartList.innerHTML = L.length ? L.map(l => `
+      <li>
+        ${l.p.img ? `<img src="${esc(l.p.img)}" alt="">` : '<i></i>'}
+        <div><b>${esc(l.p.nom)}</b><small>${esc(l.p.info)} · ${esc(l.p.prix)}</small></div>
+        <div class="qty">
+          <button type="button" data-k="${esc(l.k)}" data-d="-1" aria-label="Retirer une bouteille">−</button>
+          <span>${l.q}</span>
+          <button type="button" data-k="${esc(l.k)}" data-d="1" aria-label="Ajouter une bouteille">+</button>
+        </div>
+      </li>`).join('') : '<li class="vide">Votre panier est vide.</li>';
+    cartForm.hidden = L.length === 0;
+    majBoutons();
+  }
+  function ajouter(k, d) {
+    panier[k] = Math.max(0, Math.min(99, (panier[k] || 0) + d));
+    if (!panier[k]) delete panier[k];
+    sauver(); majPanier();
+  }
+  const ouvrir = () => { cart.hidden = false; document.body.classList.add('cart-open'); cartMsg.textContent = ''; };
+  const fermer = () => { cart.hidden = true; document.body.classList.remove('cart-open'); };
+
+  pEl.addEventListener('click', e => {
+    const b = e.target.closest('.add'); if (!b) return;
+    ajouter(b.dataset.key, 1);
+    cartBtn.classList.remove('pulse'); void cartBtn.offsetWidth; cartBtn.classList.add('pulse');
+  });
+  cartList.addEventListener('click', e => { const b = e.target.closest('button[data-k]'); if (b) ajouter(b.dataset.k, +b.dataset.d); });
+  cartBtn.addEventListener('click', ouvrir);
+  cart.addEventListener('click', e => { if (e.target === cart || e.target.closest('[data-close]')) fermer(); });
+  addEventListener('keydown', e => { if (e.key === 'Escape' && !cart.hidden) fermer(); });
+
+  // date de retrait : à partir d'aujourd'hui, 30 jours maximum
+  const jour = d => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  const dateIn = cartForm.querySelector('[name=date]');
+  dateIn.min = jour(new Date()); dateIn.max = jour(new Date(Date.now() + 30 * 864e5)); dateIn.value = dateIn.min;
+
+  cartForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const f = new FormData(cartForm), L = lignes();
+    const tel = (f.get('telephone') || '').replace(/\D/g, '');
+    const err = !L.length ? 'Votre panier est vide.'
+      : !f.get('prenom').trim() || !f.get('nom').trim() ? 'Indiquez votre prénom et votre nom.'
+      : tel.length < 9 ? 'Indiquez un numéro de téléphone valide.'
+      : !f.get('cave') ? 'Choisissez la cave où retirer votre commande.'
+      : !f.get('date') ? 'Choisissez le jour de retrait.'
+      : !f.get('majeur') ? "La vente d'alcool est réservée aux personnes de 18 ans ou plus." : '';
+    if (err) { cartMsg.textContent = err; return; }
+    const d = Object.fromEntries(f);
+    const retrait = new Date(d.date + 'T12:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) + (d.heure ? ' vers ' + d.heure : '');
+    const commande = {
+      type: 'commande', site_web: d.site_web, prenom: d.prenom.trim(), nom: d.nom.trim(), telephone: d.telephone.trim(),
+      email: (d.email || '').trim(), cave: d.cave, retrait, note: (d.note || '').trim(), total: totalPanier(),
+      articles: L.map(l => ({ nom: l.p.nom, info: l.p.info, qte: l.q, prix: prixNum(l.p.prix) })),
+    };
+    const btn = cartForm.querySelector('button[type=submit]'); btn.disabled = true; cartMsg.textContent = 'Envoi de la commande…';
+    try {
+      if (SHEETS_URL) {
+        const j = await envoyerSheets(commande);
+        cartMsg.innerHTML = `<b>Commande ${esc(j.numero)} reçue, merci !</b> Nous vous appelons pour confirmer. À retirer à ${esc(commande.cave)}, ${esc(retrait)}. Paiement en magasin.`;
+      } else {
+        const txt = `Bonjour Aperi'k, je souhaite commander pour un retrait à ${commande.cave}, ${retrait} :\n` +
+          commande.articles.map(a => `- ${a.qte} × ${a.nom} (${a.info}) : ${a.prix} DH`).join('\n') +
+          `\nTotal : ${dh(commande.total)}\n${commande.prenom} ${commande.nom} — ${commande.telephone}` + (commande.note ? `\nNote : ${commande.note}` : '');
+        open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(txt), '_blank', 'noopener');
+        cartMsg.innerHTML = '<b>Votre commande s\'ouvre dans WhatsApp.</b> Envoyez le message pour la confirmer.';
+      }
+      panier = {}; sauver(); majPanier(); cartForm.hidden = true;
+      cartForm.reset(); dateIn.value = dateIn.min;
+    } catch (err) {
+      cartMsg.textContent = "L'envoi n'a pas abouti. Réessayez, ou appelez-nous au 05 20 35 65 66.";
+    } finally { btn.disabled = false; }
+  });
+  majPanier();
+
+  // demande d'adhésion : enregistrée dans le Google Sheets (SHEETS_URL) ; à défaut, envoyée par e-mail via FormSubmit
   const ADHESION_URL = 'https://formsubmit.co/ajax/hamza.kadirihassani@gmail.com';
   const adh = document.getElementById('adhForm'), adhMsg = document.getElementById('adhMsg');
   adh.addEventListener('submit', async e => {
@@ -1167,10 +1362,14 @@ footer .loi{font-size:.78rem;text-align:center;border-top:1px dashed var(--line)
       const data = Object.fromEntries(f);
       if (data._honey) throw new Error('spam');
       delete data._honey;
-      Object.assign(data, { _subject: "Nouvelle demande d'adhésion Aperi'k", _template: 'table', _captcha: 'false' });
-      const r = await fetch(ADHESION_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify(data) });
-      const j = await r.json().catch(() => ({}));
-      if (!r.ok || String(j.success) === 'false') throw new Error(j.message || r.status);
+      if (SHEETS_URL) {
+        await envoyerSheets({ type: 'adhesion', ...data });
+      } else {
+        Object.assign(data, { _subject: "Nouvelle demande d'adhésion Aperi'k", _template: 'table', _captcha: 'false' });
+        const r = await fetch(ADHESION_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify(data) });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok || String(j.success) === 'false') throw new Error(j.message || r.status);
+      }
       adh.reset();
       adhMsg.textContent = 'Merci ! Votre demande est bien reçue. Nous vous appelons très vite pour finaliser votre adhésion.';
     } catch (err) {

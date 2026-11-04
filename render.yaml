@@ -5,7 +5,7 @@ services:
     name: aperik
     runtime: static
     # Rien à compiler : on retire seulement les fichiers de travail (Excel, notes) pour ne pas les publier
-    buildCommand: rm -f *.csv *.md render.yaml .gitignore
+    buildCommand: rm -rf *.csv *.md render.yaml .gitignore google-sheets
     staticPublishPath: .
     headers:
       # Les photos changent rarement : le navigateur les garde 7 jours
