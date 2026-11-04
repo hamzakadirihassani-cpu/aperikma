@@ -1122,7 +1122,7 @@ footer .loi{font-size:.78rem;text-align:center;border-top:1px dashed var(--line)
   const esc = s => String(s).replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
 
   // Adresse de l'application Google Sheets (commandes + adhésions). Vide = commandes par WhatsApp.
-  const SHEETS_URL = '';
+  const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwcwBXSekDCR1lqb1RsmHPgk9vb6q0C9T_TQuSU0XOY6-Nu_ggJbAjGdooJQr6cglU8/exec';
   const WHATSAPP = '212768708507';
   const prixNum = s => { const m = String(s || '').match(/[\d\s.,]+/); return m ? parseFloat(m[0].replace(/\s/g, '').replace(',', '.')) || 0 : 0; };
   const cle = p => p.nom + '|' + p.info;

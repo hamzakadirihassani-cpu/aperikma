@@ -156,7 +156,7 @@ main{padding-block:20px 60px}
 <script>
 (function(){
   // Même adresse que SHEETS_URL dans index.html (application Web du script Google Sheets)
-  const SHEETS_URL = '';
+  const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwcwBXSekDCR1lqb1RsmHPgk9vb6q0C9T_TQuSU0XOY6-Nu_ggJbAjGdooJQr6cglU8/exec';
   const $ = id => document.getElementById(id);
   const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const dh = n => Number(n || 0).toLocaleString('fr-FR', { maximumFractionDigits: 2 }) + ' DH';
