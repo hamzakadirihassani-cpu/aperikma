@@ -4,7 +4,8 @@ services:
   - type: web
     name: aperik
     runtime: static
-    buildCommand: echo "Site statique, rien a construire"
+    # Rien à compiler : on retire seulement les fichiers de travail (Excel, notes) pour ne pas les publier
+    buildCommand: rm -f *.csv *.md render.yaml .gitignore
     staticPublishPath: .
     headers:
       # Les photos changent rarement : le navigateur les garde 7 jours

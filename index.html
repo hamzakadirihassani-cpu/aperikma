@@ -435,9 +435,8 @@ footer .loi{font-size:.78rem;text-align:center;border-top:1px dashed var(--line)
             <li>Votre remise s'applique en caisse</li>
           </ol>
         </div>
-        <form class="adh-form" id="adhForm" name="adhesion" method="POST" data-netlify="true" netlify-honeypot="site-web" novalidate>
-          <input type="hidden" name="form-name" value="adhesion">
-          <p class="sr"><label>Ne pas remplir <input name="site-web" tabindex="-1" autocomplete="off"></label></p>
+        <form class="adh-form" id="adhForm" name="adhesion" method="POST" novalidate>
+          <p class="sr"><label>Ne pas remplir <input name="_honey" tabindex="-1" autocomplete="off"></label></p>
           <div class="adh-row">
             <label>Prénom<input name="prenom" autocomplete="given-name" required></label>
             <label>Nom<input name="nom" autocomplete="family-name" required></label>
@@ -1149,7 +1148,10 @@ footer .loi{font-size:.78rem;text-align:center;border-top:1px dashed var(--line)
     });
   });
 
-  // demande d'adhésion : enregistrée par Netlify Forms (onglet Forms du site Netlify)
+  // demande d'adhésion : envoyée par e-mail via FormSubmit (gratuit, sans compte).
+  // Après la première inscription, FormSubmit envoie un e-mail d'activation, puis un code
+  // à mettre à la place de l'adresse ci-dessous pour ne plus l'afficher dans la page.
+  const ADHESION_URL = 'https://formsubmit.co/ajax/hamza.kadirihassani@gmail.com';
   const adh = document.getElementById('adhForm'), adhMsg = document.getElementById('adhMsg');
   adh.addEventListener('submit', async e => {
     e.preventDefault();
@@ -1161,8 +1163,13 @@ footer .loi{font-size:.78rem;text-align:center;border-top:1px dashed var(--line)
     if (!f.get('majeur')) { adhMsg.textContent = "L'adhésion est réservée aux personnes de 18 ans ou plus."; return; }
     const btn = adh.querySelector('button'); btn.disabled = true; adhMsg.textContent = 'Envoi en cours…';
     try {
-      const r = await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(f).toString() });
-      if (!r.ok) throw new Error(r.status);
+      const data = Object.fromEntries(f);
+      if (data._honey) throw new Error('spam');
+      delete data._honey;
+      Object.assign(data, { _subject: "Nouvelle demande d'adhésion Aperi'k", _template: 'table', _captcha: 'false' });
+      const r = await fetch(ADHESION_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify(data) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || String(j.success) === 'false') throw new Error(j.message || r.status);
       adh.reset();
       adhMsg.textContent = 'Merci ! Votre demande est bien reçue. Nous vous appelons très vite pour finaliser votre adhésion.';
     } catch (err) {
